@@ -20,6 +20,10 @@ public partial class School_dbContext : DbContext
 
     public virtual DbSet<Class> Classes { get; set; }
 
+    public virtual DbSet<Department> Departments { get; set; }
+
+    public virtual DbSet<GradeScale> GradeScales { get; set; }
+
     public virtual DbSet<Staff> Staff { get; set; }
 
     public virtual DbSet<Student> Students { get; set; }
@@ -28,7 +32,7 @@ public partial class School_dbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=KAPTOP;Database=school_db;Integrated Security=True;Trust Server Certificate=True;");
+        => optionsBuilder.UseSqlServer("Data Source = KAPTOP; Database=school_db; Integrated Security = True; Trust Server Certificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +50,11 @@ public partial class School_dbContext : DbContext
             entity.Property(e => e.StudentId).HasColumnName("student_id");
             entity.Property(e => e.SubjectId).HasColumnName("subject_id");
             entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
+
+            entity.HasOne(d => d.GradeNavigation).WithMany(p => p.AcademicRecords)
+                .HasForeignKey(d => d.Grade)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_record_grade_scale");
 
             entity.HasOne(d => d.Student).WithMany(p => p.AcademicRecords)
                 .HasForeignKey(d => d.StudentId)
@@ -82,11 +91,36 @@ public partial class School_dbContext : DbContext
                 .HasConstraintName("fk_teacher_class");
         });
 
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__C223242247169775");
+
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
+            entity.Property(e => e.DepartmentName)
+                .HasMaxLength(50)
+                .HasColumnName("department_name");
+        });
+
+        modelBuilder.Entity<GradeScale>(entity =>
+        {
+            entity.HasKey(e => e.GradeLetter).HasName("PK__Grade_sc__1B70202E8B45F106");
+
+            entity.ToTable("Grade_scale");
+
+            entity.Property(e => e.GradeLetter)
+                .HasMaxLength(5)
+                .HasColumnName("grade_letter");
+            entity.Property(e => e.Points)
+                .HasColumnType("decimal(3, 1)")
+                .HasColumnName("points");
+        });
+
         modelBuilder.Entity<Staff>(entity =>
         {
             entity.HasKey(e => e.StaffId).HasName("PK__Staff__1963DD9CA66B3EF6");
 
             entity.Property(e => e.StaffId).HasColumnName("staff_id");
+            entity.Property(e => e.DepartmentId).HasColumnName("department_id");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .HasColumnName("email");
@@ -109,6 +143,10 @@ public partial class School_dbContext : DbContext
                 .HasMaxLength(15)
                 .IsUnicode(false)
                 .HasColumnName("social_security_nr");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.DepartmentId)
+                .HasConstraintName("fk_staff_department");
         });
 
         modelBuilder.Entity<Student>(entity =>

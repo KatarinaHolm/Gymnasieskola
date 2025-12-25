@@ -100,5 +100,21 @@ namespace Gymnasieskola
             context.Staff.Add(newStaff);
             context.SaveChanges();
         }
+
+        public List<Department> GetDepartments()
+        {
+            return context.Departments                
+                .Include(d => d.Staff)
+                .ToList();
+        }
+        //public List<Staff> GetStaffInDepartment(int departmentId)
+        //{
+        //    var departmentStaff = context.Departments
+        //        .Where(d => d.DepartmentId == departmentId)
+        //        .Include(d => d.Staff)
+        //        .ToList();
+        //                    //
+        //        return null;
+        //}
     }
 }

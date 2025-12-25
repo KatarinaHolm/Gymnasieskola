@@ -5,7 +5,6 @@ namespace Gymnasieskola.Models;
 
 public partial class Staff
 {
-   
     public int StaffId { get; set; }
 
     public string Profession { get; set; } = null!;
@@ -22,7 +21,11 @@ public partial class Staff
 
     public string Email { get; set; } = null!;
 
+    public int? DepartmentId { get; set; }
+
     public virtual ICollection<AcademicRecord> AcademicRecords { get; set; } = new List<AcademicRecord>();
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();
+
+    public virtual Department? Department { get; set; }
 }

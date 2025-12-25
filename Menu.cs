@@ -20,6 +20,7 @@ namespace Gymnasieskola
                 "Visa alla studenter i en klass",
                 "Lägg till ny student",
                 "Visa personal",
+                "Visa avdelningar",
                 "Lägg till ny personal", 
                 "Avsluta"
             };
@@ -108,12 +109,18 @@ namespace Gymnasieskola
                 //[5] 
                 case 5:
                     Console.Clear();
+                    ShowDepartmentsAndCount();
+                    HelperMethods.ReturnToMenu();
+                    break;
+                //[6] 
+                case 6:
+                    Console.Clear();
                     AddStaff();
                     HelperMethods.ReturnToMenu();
                     break;
 
-                //[6] Exit program
-                case 6:
+                //[7] Exit program
+                case 7:
                     Console.Clear();
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Tack för att du använder Gymnasieskolans app!");
@@ -315,6 +322,18 @@ namespace Gymnasieskola
             Console.WriteLine("\nPersonal tillagd!");
             Thread.Sleep(1500);
 
+        }
+
+        public void ShowDepartmentsAndCount()
+        {
+            List<Department> Departments = service.GetDepartments();
+
+            Console.WriteLine("Avdelningar (antal personal)\n");
+
+            foreach (var department in Departments)
+            {
+                Console.WriteLine($"{department.DepartmentName}: {department.Staff.Count}");
+            }
         }
 
 
