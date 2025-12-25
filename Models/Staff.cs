@@ -5,18 +5,7 @@ namespace Gymnasieskola.Models;
 
 public partial class Staff
 {
-    public Staff(){ }
-    public Staff(string p, string fN, string lN, string sSN, string hA, string pN, string e)
-    {
-        Profession = p;
-        FirstName = fN;
-        LastName = lN;
-        SocialSecurityNr = sSN;
-        HomeAddress = hA;
-        PhoneNr = pN;
-        Email = e;        
-    }
-
+   
     public int StaffId { get; set; }
 
     public string Profession { get; set; } = null!;

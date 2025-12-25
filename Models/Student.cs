@@ -5,17 +5,6 @@ namespace Gymnasieskola.Models;
 
 public partial class Student
 {
-    public Student() { }
-    public Student(string fN, string lN, string sSN, string hA, string pN, string e, int? cI)
-    {
-        FirstName = fN;
-        LastName = lN;
-        SocialSecurityNr = sSN;
-        HomeAddress = hA;
-        PhoneNr = pN;
-        Email = e;
-        ClassId = cI;
-    }
     public int StudentId { get; set; }
 
     public string FirstName { get; set; } = null!;
