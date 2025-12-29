@@ -3,6 +3,7 @@ using Gymnasieskola.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -53,7 +54,7 @@ namespace Gymnasieskola
             return GetClasses().Select(c => c.ClassName).ToList();
         }
 
-        public Class GetClassList(int classId)
+        public Class GetClass(int classId)
         {
             var selectedClass = context.Classes
                 .Where(c => c.ClassId == classId)
@@ -107,14 +108,49 @@ namespace Gymnasieskola
                 .Include(d => d.Staff)
                 .ToList();
         }
-        //public List<Staff> GetStaffInDepartment(int departmentId)
-        //{
-        //    var departmentStaff = context.Departments
-        //        .Where(d => d.DepartmentId == departmentId)
-        //        .Include(d => d.Staff)
-        //        .ToList();
-        //                    //
-        //        return null;
-        //}
+         
+        public List<AcademicRecord> GetStudentsGrades()
+        {
+            var studentsGrades = context.AcademicRecords
+                .Include(r => r.Student)
+                    .ThenInclude(r => r.Class)
+                .Include(r => r.Subject)
+                .OrderBy(r => r.StudentId)
+                .ThenBy(r => r.Subject)
+                .ToList();
+            return studentsGrades;
+        }
+
+        public List<Subject> GetSubjects()
+        {
+            return context.Subjects.ToList();
+        }
+
+        public List<string> GetGradeLetters()
+        {
+            return context.GradeScales.Select(g => g.GradeLetter).ToList();
+        }
+
+        // !!?? try-catch Transactions
+        public void AddAcademicRecordToDb(string grade, DateOnly gradingDate, int studentId, int subjectId, int teacherId)
+        {
+            var newAcademicRecord = new AcademicRecord
+            {
+                Grade = grade,
+
+                GradingDate = gradingDate,
+
+                StudentId = studentId,
+
+                SubjectId = subjectId,
+
+                TeacherId = teacherId
+            };
+
+            context.AcademicRecords.Add(newAcademicRecord);
+            context.SaveChanges();
+            
+        }
+       
     }
 }

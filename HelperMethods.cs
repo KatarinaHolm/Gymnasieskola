@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,38 +48,74 @@ namespace HelperProject
         }
 
         //Inputvalidering för string med begränsning för antal tecken.
-        public static string ReadString(string questionText, int minAmountOfCharacters, int maxAmountOfCharacters)
+    public static string ReadString(string questionText, int minAmountOfCharacters, int maxAmountOfCharacters)
+    {
+        while (true)
         {
-            while (true)
+            Console.Clear();
+            Console.Write(questionText);
+
+            string? userInput = Console.ReadLine();
+
+            if (!String.IsNullOrEmpty(userInput))
             {
-                Console.Clear();
-                Console.Write(questionText);
-
-                string? userInput = Console.ReadLine();
-
-                if (!String.IsNullOrEmpty(userInput))
+                if (userInput.Length>=minAmountOfCharacters && userInput.Length<=maxAmountOfCharacters)
                 {
-                    if (userInput.Length>=minAmountOfCharacters && userInput.Length<=maxAmountOfCharacters)
-                    {
-                        return userInput;
-                    }
-
-                    else
-                    {
-                        Console.WriteLine($"Please enter an answer between {minAmountOfCharacters} and {maxAmountOfCharacters} characters.");
-                        Thread.Sleep(2000);
-                    }                    
+                    return userInput;
                 }
 
                 else
                 {
-                    Console.WriteLine("Please enter a valid answer!");
+                    Console.WriteLine($"Please enter an answer between {minAmountOfCharacters} and {maxAmountOfCharacters} characters.");
+                    Thread.Sleep(2000);
+                }                    
+            }
+
+            else
+            {
+                Console.WriteLine("Please enter a valid answer!");
+                Thread.Sleep(2000);
+            }
+        }
+    }
+
+    public static DateOnly ReadDate(string questionText)
+    {
+        while (true)
+        {
+            Console.Write(questionText);
+            string? userInput = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(userInput))
+            {
+                bool success = DateOnly.TryParseExact(
+                    userInput,
+                    "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out DateOnly parsedDate
+                );
+
+                if (success)
+                {
+                    return parsedDate;
+                }
+                else
+                {
+                    Console.WriteLine("Fel format. Ange datum som ÅÅÅÅ-MM-DD (t.ex. 2025-12-27).");
                     Thread.Sleep(2000);
                 }
             }
+            else
+            {
+                Console.WriteLine("Ange ett datum.");
+                Thread.Sleep(2000);
+            }
         }
+    }
 
-        public static int ReadInt(string questionText)
+
+    public static int ReadInt(string questionText)
         {          
             while (true)
             {                  

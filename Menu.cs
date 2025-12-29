@@ -19,9 +19,11 @@ namespace Gymnasieskola
                 "Visa alla studenter",
                 "Visa alla studenter i en klass",
                 "Lägg till ny student",
+                "Visa studenters betyg",
                 "Visa personal",
                 "Visa avdelningar",
-                "Lägg till ny personal", 
+                "Lägg till ny personal",
+                "Sätt betyg på student för kurs", 
                 "Avsluta"
             };
 
@@ -99,28 +101,42 @@ namespace Gymnasieskola
                     HelperMethods.ReturnToMenu();
                     break;
 
-                //[4] 
+                // Subjects and grades of students
                 case 4:
+                    Console.Clear();
+                    ShowStudentGrades();
+                    HelperMethods.ReturnToMenu();
+                    break;
+
+                // show staff
+                case 5:
                     Console.Clear();
                     ShowStaff();
                     HelperMethods.ReturnToMenu();
                     break;
 
-                //[5] 
-                case 5:
+                //show departments
+                case 6:
                     Console.Clear();
                     ShowDepartmentsAndCount();
                     HelperMethods.ReturnToMenu();
                     break;
-                //[6] 
-                case 6:
+
+                //Add staff
+                case 7:
                     Console.Clear();
                     AddStaff();
                     HelperMethods.ReturnToMenu();
                     break;
 
-                //[7] Exit program
-                case 7:
+                case 8:
+                    Console.Clear();
+                    SetGrade();
+                    HelperMethods.ReturnToMenu();
+                    break;
+
+                // Exit program
+                case 9:
                     Console.Clear();
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Tack för att du använder Gymnasieskolans app!");
@@ -183,6 +199,17 @@ namespace Gymnasieskola
             Console.Clear();
             Console.WriteLine("Visa studenter i en klass\n");
 
+            int classId = ChooseClass();
+
+            var selectedCLass = service.GetClass(classId);
+
+            string heading = $"Studenter i klass {selectedCLass.ClassName}";
+
+            PrintStudentList(heading, selectedCLass.Students);
+        }
+
+        public int ChooseClass()
+        {
             //Fetch list of classNames
             List<string> classNames = service.GetClassNames();
             string prompt = "\nVälj klass (nr): ";
@@ -191,12 +218,7 @@ namespace Gymnasieskola
             //Get ClassId of choosen class
             List<Class> classes = service.GetClasses();
             int classId = classes[userChoice - 1].ClassId;
-
-            var selectedCLass = service.GetClassList(classId);
-
-            string heading = $"Students in class {selectedCLass.ClassName}";
-
-            PrintStudentList(heading, selectedCLass.Students);
+            return classId;
         }
 
         //!? Add heading? clear between?
@@ -224,12 +246,8 @@ namespace Gymnasieskola
 
             //Choose class from list
             Console.Clear();            
-            List<string> classNames = service.GetClassNames();
-            string prompt = "\nVälj klass (nr): ";
-            int userChoice = ChooseFromList(classNames, prompt);
-
-            List<Class> classes = service.GetClasses();
-            int classId = classes[userChoice - 1].ClassId;
+           
+            int classId = ChooseClass();
 
             //Adding student
             service.AddStudentToDb(firstName, lastName, socialSecurityNr, homeAddress, phoneNr, email, classId);
@@ -336,6 +354,102 @@ namespace Gymnasieskola
             }
         }
 
+        public void ShowStudentGrades()
+        {
+            var records = service.GetStudentsGrades();
 
+            var recordsGroupedByStudent = records.GroupBy(r => r.Student);
+
+            Console.WriteLine("Alla studenters betyg");
+
+            foreach (var studentRecords in recordsGroupedByStudent)
+            {
+                var student = studentRecords.Key;
+                Console.WriteLine($"\n{student.FirstName,-15} {student.LastName, -25} | Klass: {student.Class.ClassName}");
+
+                foreach (var record in studentRecords)
+                {
+                    Console.WriteLine($"{record.Subject.SubjectName, -20} Betyg: {record.Grade}");
+                }
+            }
+        }
+
+
+        public void SetGrade()
+        {
+            Console.WriteLine("Sätta betyg för elev");
+
+            //Select class from a list
+            int classId = ChooseClass();
+
+            //Select student from classlist
+            Console.Clear();
+            var selectedCLassList = service.GetClass(classId)
+                .Students
+                .ToList();
+            string prompt = $"Välj elev (nr): ";
+            int userChoiceStudent = ChooseStudent(selectedCLassList, prompt);
+
+            var selectedStudentId = selectedCLassList[userChoiceStudent - 1].StudentId;
+
+            // Choose subject to set grade in
+            Console.Clear();
+            var subjects = service.GetSubjects();
+            string prompt2 = $"Välj ämne (nr): ";
+            int userChoiceSubject = ChooseFromList(subjects.Select(s => s.SubjectName).ToList(), prompt2);
+
+            var selectedSubjectId = subjects[userChoiceSubject- 1].SubjectId;
+
+            // Choose grade
+            Console.Clear();
+            var gradeLetters = service.GetGradeLetters();
+            string prompt3 = $"Välj betyg (nr): ";
+            int userChoiceGrade = ChooseFromList(gradeLetters, prompt3);
+
+            var selectedGrade = gradeLetters[userChoiceGrade - 1];
+
+            //Choose teacher who set grade
+            Console.Clear();
+            var teachers = service.GetStaffByProfessions("Lärare");
+            string prompt4 = $"Välj lärare som sätter betyg (nr): ";
+            int userChoiceTeacher = ChooseTeacher(teachers, prompt4);
+
+            var selectedTeacherId= teachers[userChoiceTeacher - 1].StaffId;
+
+            //Write date
+            Console.Clear();
+            string prompt5 = "Skriv betygsdatum (ÅÅÅÅ-MM-DD): ";
+            DateOnly gradingDate = HelperMethods.ReadDate(prompt5);
+
+            //Add to database
+            service.AddAcademicRecordToDb(selectedGrade, gradingDate, selectedStudentId, selectedSubjectId, selectedTeacherId);
+
+            Console.WriteLine("\nBetyg tillagt!");
+            Thread.Sleep(1500);
+        }
+
+        public int ChooseStudent(List<Student> list, string choosePrompt)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($"{i + 1,3}. {list[i].FirstName} {list[i].LastName} ");
+            }
+
+            int userChoice = HelperMethods.ReadInt(choosePrompt, 1, list.Count);
+
+            return userChoice;
+        }
+
+        public int ChooseTeacher(List<Staff> list, string choosePrompt)
+        {
+            for (int i = 0; i < list.Count; i++)
+            {
+                Console.WriteLine($"{i + 1,3}. {list[i].FirstName} {list[i].LastName} ");
+            }
+
+            int userChoice = HelperMethods.ReadInt(choosePrompt, 1, list.Count);
+
+            return userChoice;
+        }
     }
 }
