@@ -23,6 +23,10 @@ public partial class Staff
 
     public int? DepartmentId { get; set; }
 
+    public DateOnly EmploymentDate { get; set; }
+
+    public decimal Salary { get; set; }
+
     public virtual ICollection<AcademicRecord> AcademicRecords { get; set; } = new List<AcademicRecord>();
 
     public virtual ICollection<Class> Classes { get; set; } = new List<Class>();

@@ -42,11 +42,16 @@ public partial class School_dbContext : DbContext
 
             entity.ToTable("Academic_records");
 
+            entity.HasIndex(e => new { e.StudentId, e.SubjectId }, "uq_student_subject").IsUnique();
+
             entity.Property(e => e.RecordId).HasColumnName("record_id");
             entity.Property(e => e.Grade)
                 .HasMaxLength(5)
                 .HasColumnName("grade");
             entity.Property(e => e.GradingDate).HasColumnName("grading_date");
+            entity.Property(e => e.IsOngoing)
+                .HasDefaultValue(true)
+                .HasColumnName("isOngoing");
             entity.Property(e => e.StudentId).HasColumnName("student_id");
             entity.Property(e => e.SubjectId).HasColumnName("subject_id");
             entity.Property(e => e.TeacherId).HasColumnName("teacher_id");
@@ -124,6 +129,9 @@ public partial class School_dbContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .HasColumnName("email");
+            entity.Property(e => e.EmploymentDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnName("employment_date");
             entity.Property(e => e.FirstName)
                 .HasMaxLength(50)
                 .HasColumnName("first_name");
@@ -139,6 +147,9 @@ public partial class School_dbContext : DbContext
             entity.Property(e => e.Profession)
                 .HasMaxLength(50)
                 .HasColumnName("profession");
+            entity.Property(e => e.Salary)
+                .HasColumnType("decimal(10, 2)")
+                .HasColumnName("salary");
             entity.Property(e => e.SocialSecurityNr)
                 .HasMaxLength(15)
                 .IsUnicode(false)

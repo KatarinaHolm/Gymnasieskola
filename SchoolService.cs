@@ -121,6 +121,14 @@ namespace Gymnasieskola
             return studentsGrades;
         }
 
+        public List<AcademicRecord> GetActiveSubjects()
+        {
+            var activeSubjects = GetStudentsGrades()
+                .Where(a => a.IsOngoing = true)
+                .ToList();
+            return activeSubjects;
+        }
+
         public List<Subject> GetSubjects()
         {
             return context.Subjects.ToList();

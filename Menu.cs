@@ -374,6 +374,8 @@ namespace Gymnasieskola
             }
         }
 
+        
+
 
         public void SetGrade()
         {

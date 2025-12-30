@@ -17,6 +17,8 @@ public partial class AcademicRecord
 
     public int TeacherId { get; set; }
 
+    public bool IsOngoing { get; set; }
+
     public virtual GradeScale GradeNavigation { get; set; } = null!;
 
     public virtual Student Student { get; set; } = null!;
