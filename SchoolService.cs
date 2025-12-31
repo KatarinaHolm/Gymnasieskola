@@ -41,7 +41,6 @@ namespace Gymnasieskola
             return query.ToList();
         }
 
-        //remake to string list to generalize print method
         public List<Class> GetClasses()
         {            
             return context.Classes                
@@ -139,25 +138,31 @@ namespace Gymnasieskola
             return context.GradeScales.Select(g => g.GradeLetter).ToList();
         }
 
-        // !!?? try-catch Transactions
         public void AddAcademicRecordToDb(string grade, DateOnly gradingDate, int studentId, int subjectId, int teacherId)
         {
-            var newAcademicRecord = new AcademicRecord
+            var transaction = context.Database.BeginTransaction();
+            try
             {
-                Grade = grade,
+                context.AcademicRecords.Add(new AcademicRecord()
+                {
+                    Grade = grade,
 
-                GradingDate = gradingDate,
+                    GradingDate = gradingDate,
 
-                StudentId = studentId,
+                    StudentId = studentId,
 
-                SubjectId = subjectId,
+                    SubjectId = subjectId,
 
-                TeacherId = teacherId
-            };
+                    TeacherId = teacherId
+                });
 
-            context.AcademicRecords.Add(newAcademicRecord);
-            context.SaveChanges();
-            
+                context.SaveChanges();
+                transaction.Commit();
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+            }      
         }
        
     }

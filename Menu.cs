@@ -1,5 +1,6 @@
 ﻿using Gymnasieskola.Models;
 using HelperProject;
+using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.Identity.Client;
 using System;
@@ -20,6 +21,7 @@ namespace Gymnasieskola
                 "Visa alla studenter i en klass",
                 "Lägg till ny student",
                 "Visa studenters betyg",
+                "Visa pågående ämnen (ej slutbetyg)",
                 "Visa personal",
                 "Visa avdelningar",
                 "Lägg till ny personal",
@@ -108,35 +110,42 @@ namespace Gymnasieskola
                     HelperMethods.ReturnToMenu();
                     break;
 
-                // show staff
+                // Show active subjects
                 case 5:
+                    Console.Clear();
+                    ShowActiveSubjects();
+                    HelperMethods.ReturnToMenu();
+                    break;
+
+                // show staff
+                case 6:
                     Console.Clear();
                     ShowStaff();
                     HelperMethods.ReturnToMenu();
                     break;
 
                 //show departments
-                case 6:
+                case 7:
                     Console.Clear();
                     ShowDepartmentsAndCount();
                     HelperMethods.ReturnToMenu();
                     break;
 
                 //Add staff
-                case 7:
+                case 8:
                     Console.Clear();
                     AddStaff();
                     HelperMethods.ReturnToMenu();
                     break;
 
-                case 8:
+                case 9:
                     Console.Clear();
                     SetGrade();
                     HelperMethods.ReturnToMenu();
                     break;
 
                 // Exit program
-                case 9:
+                case 10:
                     Console.Clear();
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("Tack för att du använder Gymnasieskolans app!");
@@ -357,24 +366,38 @@ namespace Gymnasieskola
         public void ShowStudentGrades()
         {
             var records = service.GetStudentsGrades();
+            string heading = "Alla studenters betyg";
 
+            PrintStudentGrades(heading, records);
+
+        }
+
+        public void PrintStudentGrades(string heading, List<AcademicRecord> records)
+        {
             var recordsGroupedByStudent = records.GroupBy(r => r.Student);
 
-            Console.WriteLine("Alla studenters betyg");
+            Console.WriteLine(heading);
 
             foreach (var studentRecords in recordsGroupedByStudent)
             {
                 var student = studentRecords.Key;
-                Console.WriteLine($"\n{student.FirstName,-15} {student.LastName, -25} | Klass: {student.Class.ClassName}");
+                Console.WriteLine($"\n{student.FirstName,-15} {student.LastName,-25} | Klass: {student.Class.ClassName}");
 
                 foreach (var record in studentRecords)
                 {
-                    Console.WriteLine($"{record.Subject.SubjectName, -20} Betyg: {record.Grade}");
+                    Console.WriteLine($"{record.Subject.SubjectName,-20} Betyg: {record.Grade, -5} Betygsdatum: {record.GradingDate, -15} Pågående: {record.IsOngoing}");
                 }
             }
         }
 
-        
+        public void ShowActiveSubjects()
+        {
+            var records = service.GetActiveSubjects();
+
+            string heading = "Ämnen som är pågående (slutbetyg ej satt ännu)";
+
+            PrintStudentGrades(heading, records);
+        }
 
 
         public void SetGrade()
