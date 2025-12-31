@@ -433,6 +433,14 @@ namespace Gymnasieskola
 
             var selectedGrade = gradeLetters[userChoiceGrade - 1];
 
+            //Choose if active subject or final grade
+            Console.Clear();
+            bool isActiveSubject;
+            string activePrompt = "Är ämnet (1) pågående eller (2) avslutat (slutbetyg)? \n Välj: ";
+            int userChoiceActive = HelperMethods.ReadInt(activePrompt, 1, 2);
+            isActiveSubject = (userChoiceActive == 1 ? true : false);
+
+
             //Choose teacher who set grade
             Console.Clear();
             var teachers = service.GetStaffByProfessions("Lärare");
@@ -447,7 +455,7 @@ namespace Gymnasieskola
             DateOnly gradingDate = HelperMethods.ReadDate(prompt5);
 
             //Add to database
-            service.AddAcademicRecordToDb(selectedGrade, gradingDate, selectedStudentId, selectedSubjectId, selectedTeacherId);
+            service.AddAcademicRecordToDb(selectedGrade, gradingDate, selectedStudentId, selectedSubjectId, selectedTeacherId, isActiveSubject);
 
             Console.WriteLine("\nBetyg tillagt!");
             Thread.Sleep(1500);

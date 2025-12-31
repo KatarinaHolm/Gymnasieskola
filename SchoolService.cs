@@ -138,7 +138,7 @@ namespace Gymnasieskola
             return context.GradeScales.Select(g => g.GradeLetter).ToList();
         }
 
-        public void AddAcademicRecordToDb(string grade, DateOnly gradingDate, int studentId, int subjectId, int teacherId)
+        public void AddAcademicRecordToDb(string grade, DateOnly gradingDate, int studentId, int subjectId, int teacherId, bool isOngoing)
         {
             var transaction = context.Database.BeginTransaction();
             try
@@ -153,7 +153,9 @@ namespace Gymnasieskola
 
                     SubjectId = subjectId,
 
-                    TeacherId = teacherId
+                    TeacherId = teacherId,
+
+                    IsOngoing = isOngoing
                 });
 
                 context.SaveChanges();
